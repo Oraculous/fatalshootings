@@ -59,6 +59,7 @@ df$race[df$race == "European-American/European-American/White"] <- "European-Ame
 df$race[df$race == "African-American/Black African-American/Black Not imputed"] <- "African-American/Black"
 df$race[df$race == "Christopher Anthony Alexander"] <- NA
 df$race[is.na(df$race)] <- 'Uncertain'
+df$race[df$race == "Race unspecified"] <- "Uncertain"
 
 df$`armed/unarmed`[is.na(df$`armed/unarmed`)] <- 'Uncertain'
 df$`armed/unarmed`[df$`armed/unarmed` == "Duplicate of 9914"] <- 'Uncertain'
@@ -69,15 +70,26 @@ df$`armed/unarmed`[df$`armed/unarmed` == "Gunshot"] <- 'Armed'
 df$`armed/unarmed`[is.na(df$`armed/unarmed`)] <- 'Uncertain'
 df$`armed/unarmed`[df$`armed/unarmed` == "Duplicate of 13457?"] <- 'Uncertain'
 
-df$alleged.weapon[df$alleged.weapon == "Blunt Object"] <- 'Blunt object'
+df$alleged.weapon[df$alleged.weapon == "Blunt Object"] <- 'Other'
+df$alleged.weapon[df$alleged.weapon == "Blunt object"] <- 'Other'
 df$alleged.weapon[df$alleged.weapon == "Duplicate of 9914"] <- 'Uncertain'
 df$alleged.weapon[df$alleged.weapon == "Duplicate of 13419?"] <- 'Uncertain'
-df$alleged.weapon[df$alleged.weapon == "Edged wapon"] <- 'Edged weapon'
-df$alleged.weapon[df$alleged.weapon == "Edged Weapon"] <- 'Edged weapon'
+df$alleged.weapon[df$alleged.weapon == "Edged wapon"] <- 'Other'
+df$alleged.weapon[df$alleged.weapon == "Edged Weapon"] <- 'Other'
+df$alleged.weapon[df$alleged.weapon == "Edged weapon"] <- 'Other'
 df$alleged.weapon[df$alleged.weapon == "Fiream"] <- 'Firearm'
-df$alleged.weapon[df$alleged.weapon == "Stun Gun"] <- 'Stun gun'
+df$alleged.weapon[df$alleged.weapon == "Stun Gun"] <- 'Other'
 df$alleged.weapon[df$alleged.weapon == "Duplicate of 13457?"] <- 'Uncertain'
 df$alleged.weapon[is.na(df$alleged.weapon)] <- 'Uncertain'
+df$alleged.weapon[df$alleged.weapon == "Firerm"] <- 'Firearm'
+df$alleged.weapon[df$alleged.weapon == "Vehicle"] <- 'Other'
+df$alleged.weapon[df$alleged.weapon == "Stun gun"] <- 'Other'
+df$alleged.weapon[df$alleged.weapon == "Rifle"] <- 'Firearm'
+df$alleged.weapon[df$alleged.weapon == "Armed"] <- 'Firearm'
+df$alleged.weapon[df$alleged.weapon == "Handgun"] <- 'Firearm'
+df$alleged.weapon[df$alleged.weapon == "Knife"] <- 'Other'
+df$alleged.weapon[df$alleged.weapon == "Taser"] <- 'Other'
+
 
 df$aggressive.physical.movement[df$aggressive.physical.movement == "Reached to waist"] <- 'Reached for waist'
 df$aggressive.physical.movement[df$aggressive.physical.movement == "Police allege vehicular assault"] <- 'None'
@@ -124,6 +136,8 @@ df$highest.level.of.force[df$highest.level.of.force == "Drug overdose"] <- 'Othe
 df$highest.level.of.force[df$highest.level.of.force == "Fell from a height"] <- 'Other'
 df$highest.level.of.force[df$highest.level.of.force == "Asphyxiated"] <- 'Other'
 
+ggplot(df, aes(x=reorder(alleged.weapon, alleged.weapon, function(x)-length(x)))) +
+  geom_bar(fill='red') +  labs(x='Alleged Weapon')
 
 # Gender
 ggplot(df, aes(x=reorder(gender, gender, function(x)-length(x)))) +
@@ -165,7 +179,7 @@ ggplot(df, aes(x=reorder(foreknowledge.of.mental.illness, foreknowledge.of.menta
 # Age
 ggplot(df, aes(age)) +
   geom_histogram(fill = "#0099F8") +
-  ggtitle("Variable distribution") +
+  ggtitle("Variable Distribution") +
   theme(plot.title = element_text(size = 18))
 
 value_imputed <- data.frame(
