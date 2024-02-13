@@ -143,6 +143,15 @@ ggplot(df, aes(x=reorder(alleged.weapon, alleged.weapon, function(x)-length(x)))
 ggplot(df, aes(x=reorder(gender, gender, function(x)-length(x)))) +
   geom_bar(fill='red') +  labs(x='Gender')
 
+# First lets group females, transgenders and unknown as others since compared to Males make up the least of the diistrubition
+
+df$gender[df$gender == "Female"] <- 'Other'
+df$gender[df$gender == "Transgender"] <- 'Other'
+df$gender[df$gender == "Unknown"] <- 'Other'
+
+ggplot(df, aes(x=reorder(gender, gender, function(x)-length(x)))) +
+  geom_bar(fill='red') +  labs(x='Gender')
+
 # Race
 ggplot(df, aes(x=reorder(race, race, function(x)-length(x)))) +
   geom_bar(fill='blue') +  labs(x='Race') +

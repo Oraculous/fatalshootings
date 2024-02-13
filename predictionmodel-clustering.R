@@ -33,26 +33,30 @@ table(df$foreknowledge.of.mental.illness)
 # By looking at the above we can classify some of these variables into an ordinal scale
 # Namely highest.level.of.force, armed/unarmed, fleeing.or.not.fleeing, and foreknowledge.of.mental.illness
 # Lets see how we can convert these variables into ordered numeric's
+
+
+df$fleeing.or.not.fleeing[df$fleeing.or.not.fleeing == "Motorcycle"] <- 'Yes'
+
 df$highest.level.of.force_score <- revalue(df$highest.level.of.force,
-                                            c("Gunshot"="1", "Vehicle"="1", "Tasered"="1", "Less-than-lethal force"="2", 
-                                              "Medical emergency"="3", "Undetermined"="3", "Other" = "3"))
+                                            c("Gunshot"="2", "Vehicle"="2", "Tasered"="2", "Less-than-lethal force"="1", 
+                                              "Medical emergency"="0", "Undetermined"="0", "Other" = "0"))
 
 df$highest.level.of.force_score <- as.numeric(as.character(df$highest.level.of.force_score))
 
 
 df$armed.or.unarmed_score <- revalue(df$`armed/unarmed`,
-                                           c("Armed"="1", "Uncertain"="2", "Unarmed"="3"))
+                                           c("Armed"="2", "Uncertain"="1", "Unarmed"="0"))
 
 df$armed.or.unarmed_score <- as.numeric(as.character(df$armed.or.unarmed_score))
 
 
 df$fleeing.or.not.fleeing_score <- revalue(df$fleeing.or.not.fleeing,
-                                     c("Yes"="1", "Uncertain"="2", "No"="3"))
+                                     c("Yes"="2", "Uncertain"="1", "No"="0"))
 
 df$fleeing.or.not.fleeing_score <- as.numeric(as.character(df$fleeing.or.not.fleeing_score))
 
 df$foreknowledge.of.mental.illness_score <- revalue(df$foreknowledge.of.mental.illness,
-                                           c("Yes"="1", "Uncertain"="2", "No"="3"))
+                                           c("Yes"="2", "Uncertain"="1", "No"="0"))
 
 df$foreknowledge.of.mental.illness_score <- as.numeric(as.character(df$foreknowledge.of.mental.illness_score))
 
@@ -78,10 +82,11 @@ ggcorrplot(corr_matrix)
 
 # ------ 
 # Grouping - Males
-ca_df_males <- ca_df_final[ -c(1,3,4,13:36) ] # Drop gender = Females, Transgender & Unkown, Aggressive Physical Movement & Alleged Weapon due to collineaerity with other variables
-scaled_ca_df_final <- scale(ca_df_males)
-corr_matrix <- cor(scaled_ca_df_final)
-rm(df)
+# ca_df_males <- ca_df_final[ -c(10:23) ] # Drop gender = Other, Aggressive Physical Movement & Alleged Weapon due to its similarity with other variables
+# scaled_ca_df_final <- scale(ca_df_final)
+# corr_matrix <- cor(scaled_ca_df_final)
+# ggcorrplot(corr_matrix)  
+# rm(df)
 
 xxx.pca1<-prcomp(corr_matrix, center=FALSE, scale.=FALSE)
 summary(xxx.pca1) 
@@ -94,7 +99,7 @@ fviz_pca_var(xxx.pca1, col.var="steelblue")#
 eig.val<-get_eigenvalue(xxx.pca1)
 eig.val
 
-paran(scaled_ca_df_final, iterations=10000, quietly=FALSE,
+paran(scaled_ca_df_final, iterations=1000, quietly=FALSE,
       status=FALSE, all=TRUE, cfa=FALSE, graph=TRUE,
       color=TRUE, col=c("black","red","blue"),
       lty=c(1,2,3), lwd=1, legend=TRUE, file="",
@@ -156,8 +161,8 @@ fviz_nbclust(results, FUNcluster=kmeans)
 fviz_nbclust(results, FUNcluster=kmeans, method="gap_stat", k.max = 10)+ theme_classic()
 
 # Distance metrics - Euclidean
-km1<-eclust(results, "kmeans", hc_metric="eucliden",k=10)
-km2<-eclust(results, "kmeans", hc_metric="manhattan",k=10)
+km1<-eclust(results, "kmeans", hc_metric="eucliden",k=4)
+km2<-eclust(results, "kmeans", hc_metric="manhattan",k=4)
 
 fviz_silhouette(km1)
 fviz_silhouette(km2) 
