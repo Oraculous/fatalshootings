@@ -60,7 +60,13 @@ df$foreknowledge.of.mental.illness_score <- revalue(df$foreknowledge.of.mental.i
 
 df$foreknowledge.of.mental.illness_score <- as.numeric(as.character(df$foreknowledge.of.mental.illness_score))
 
-drop <- c("highest.level.of.force", "armed/unarmed", "fleeing.or.not.fleeing", "foreknowledge.of.mental.illness", "date.of.injury", "state")
+df$gender <- as.numeric(as.character(df$gender))
+
+df$gender <- revalue(df$gender, c("Male"="0", "Female"="1"))
+
+df$gender <- as.numeric(as.character(df$gender))
+
+drop <- c("highest.level.of.force", "armed/unarmed", "fleeing.or.not.fleeing", "foreknowledge.of.mental.illness", "date.of.injury", "state", "age")
 ca_df = df[,!(names(df) %in% drop)]
 colSums(is.na(ca_df))
 rm(drop)
@@ -68,17 +74,80 @@ rm(drop)
 # df.ca <- df %>% subset(select = -c(state, date.of.injury))
  
 # One-hot encoding
-dummy <- dummyVars(~ gender + race + alleged.weapon + 
+dummy <- dummyVars(~ race + alleged.weapon + 
                      aggressive.physical.movement, data=ca_df)
 newdata <- data.frame(predict(dummy, newdata = ca_df))
-ca_df_final <- cbind(newdata, select(ca_df, -c("gender", "race", "alleged.weapon", "aggressive.physical.movement")))
-scaled_ca_df_final <- scale(ca_df_final)
-rm(dummy, newdata, new_df, ca_df)
+ca_df_one <- cbind(newdata, select(ca_df, -c("race", "alleged.weapon", "aggressive.physical.movement")))
+scaled_ca_df_final <- scale(ca_df_one)
+# rm(dummy, newdata, new_df, ca_df)
 
-# PCA
 colSums(is.na(scaled_ca_df_final))
 corr_matrix <- cor(scaled_ca_df_final)
 ggcorrplot(corr_matrix)  
+
+ca_df_final <- ca_df_one[ -c(14:23) ]
+ca_df_final[sapply(ca_df_final, is.numeric)] <- lapply(ca_df_final[sapply(ca_df_final, is.numeric)], as.factor)
+str(ca_df_final)
+
+# apply MCA
+mca1 = MCA(ca_df_final, graph = FALSE)
+results <- mca1$var$eta2
+# table of eigenvalues
+mca1$eig
+
+# column coordinates
+head(mca1$var$coord)
+
+# number of categories per variable
+cats = apply(ca_df_final, 2, function(x) nlevels(as.factor(x)))
+cats
+# data frames for ggplot
+mca1_vars_df = data.frame(mca1$var$coord, Variable = rep(names(cats), 
+                                                         cats))
+mca1_obs_df = data.frame(mca1$ind$coord)
+
+# plot of variable categories
+ggplot(data = mca1_vars_df, aes(x = Dim.1, y = Dim.2, label = rownames(mca1_vars_df))) + 
+  geom_hline(yintercept = 0, colour = "gray70") + geom_vline(xintercept = 0, 
+                                                             colour = "gray70") + geom_text(aes(colour = Variable)) + ggtitle("MCA plot of variables using R package FactoMineR")
+
+# MCA plot of observations and categories
+ggplot(data = mca1_obs_df, aes(x = Dim.1, y = Dim.2)) + geom_hline(yintercept = 0, 
+                                                                   colour = "gray70") + geom_vline(xintercept = 0, colour = "gray70") + geom_point(colour = "gray50", 
+                                                                                                                                                   alpha = 0.7) + geom_density2d(colour = "gray80") + geom_text(data = mca1_vars_df, 
+                                                                                                                                                                                                                aes(x = Dim.1, y = Dim.2, label = rownames(mca1_vars_df), colour = Variable)) + 
+  ggtitle("MCA plot of variables using R package FactoMineR") + scale_colour_discrete(name = "Variable")
+
+# default biplot in FactoMineR
+plot(mca1)
+
+fviz_nbclust(results, FUNcluster=kmeans) 
+
+# compute gap statistic for kmeans
+fviz_nbclust(results, FUNcluster=kmeans, method="gap_stat", k.max = 10)+ theme_classic()
+
+# Distance metrics - Euclidean
+km1<-eclust(results, "kmeans", hc_metric="eucliden",k=9)
+km2<-eclust(results, "kmeans", hc_metric="manhattan",k=9)
+
+fviz_silhouette(km1)
+fviz_silhouette(km2) 
+
+fviz_nbclust(results, FUNcluster=cluster::pam)
+
+# compute gap statistic
+fviz_nbclust(results, FUNcluster=cluster::pam, method="gap_stat")+ theme_classic()
+
+pam1<-eclust(results, "pam", k=2) # factoextra::
+# pam1<-eclust(scaled_ca_df_final, "pam", k=10) # factoextra::
+
+fviz_silhouette(pam1)
+
+# Hieracichal clustering
+dm<-dist(results) 
+hc<-hclust(dm, method="complete") # simple dendrogram
+ggdendrogram(hc, rotate = TRUE, theme_dendro = FALSE)
+
 
 # ------ 
 # Grouping - Males
@@ -99,11 +168,11 @@ fviz_pca_var(xxx.pca1, col.var="steelblue")#
 eig.val<-get_eigenvalue(xxx.pca1)
 eig.val
 
-paran(scaled_ca_df_final, iterations=1000, quietly=FALSE,
-      status=FALSE, all=TRUE, cfa=FALSE, graph=TRUE,
-      color=TRUE, col=c("black","red","blue"),
-      lty=c(1,2,3), lwd=1, legend=TRUE, file="",
-      width=640, height=640, grdevice="png", seed=0, mat=NA, n=NA)
+# paran(scaled_ca_df_final, iterations=1000, quietly=FALSE,
+#       status=FALSE, all=TRUE, cfa=FALSE, graph=TRUE,
+#       color=TRUE, col=c("black","red","blue"),
+#       lty=c(1,2,3), lwd=1, legend=TRUE, file="",
+#       width=640, height=640, grdevice="png", seed=0, mat=NA, n=NA)
 
 var<-get_pca_var(xxx.pca1)
 a<-fviz_contrib(xxx.pca1, "var", axes=1, xtickslab.rt=90) # default angle=45°
@@ -161,8 +230,8 @@ fviz_nbclust(results, FUNcluster=kmeans)
 fviz_nbclust(results, FUNcluster=kmeans, method="gap_stat", k.max = 10)+ theme_classic()
 
 # Distance metrics - Euclidean
-km1<-eclust(results, "kmeans", hc_metric="eucliden",k=4)
-km2<-eclust(results, "kmeans", hc_metric="manhattan",k=4)
+km1<-eclust(results, "kmeans", hc_metric="eucliden",k=10)
+km2<-eclust(results, "kmeans", hc_metric="manhattan",k=10)
 
 fviz_silhouette(km1)
 fviz_silhouette(km2) 
@@ -174,7 +243,7 @@ fviz_nbclust(results, FUNcluster=cluster::pam)
 # compute gap statistic
 fviz_nbclust(results, FUNcluster=cluster::pam, method="gap_stat")+ theme_classic()
 
-pam1<-eclust(results, "pam", k=3) # factoextra::
+pam1<-eclust(results, "pam", k=2) # factoextra::
 # pam1<-eclust(scaled_ca_df_final, "pam", k=10) # factoextra::
 
 fviz_silhouette(pam1)
@@ -184,8 +253,10 @@ dm<-dist(results)
 hc<-hclust(dm, method="complete") # simple dendrogram
 ggdendrogram(hc, rotate = TRUE, theme_dendro = FALSE)
 
-# -----
-# Grouping - Every other gender
+# Grouping - Every other gender ----- 
+# 
+
+# 
 ca_df_other <- ca_df_final[ -c(2,13:36) ] # Drop gender = Males, Aggressive Physical Movement & Alleged Weapon due to collineaerity with other variables
 scaled_ca_df_final <- scale(ca_df_other)
 corr_matrix <- cor(scaled_ca_df_final)
