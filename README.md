@@ -66,11 +66,11 @@ Looking at the distribution of the gender type it is evident that Males make up 
 
 ### Data Preprocessing
  
-The main issue that this project will face when cluster analysis is conducted is the number of samples present in the dataset. For the analysis to effectively work the option of dimensionality reduction is a must to the one-hot encoding that will be done on some of these variables. However, since a majority of these variables contains a level “Uncertain” or “Unknown” it is difficult to classify these as ordinal so it was decided to be kept as categorical but nominal in scale. The tables below go into detail on how these levels were decided. 
+The main issue that this project will face when cluster analysis is conducted is the number of samples present in the dataset. For the analysis to effectively work the option of dimensionality reduction is a must to the one-hot encoding that will be done on some of these variables. However, since a majority of these variables contains a level “Uncertain” or “Unknown” it is difficult to classify these as ordinal so it was decided to be kept as categorical but nominal in scale. The tables below go into detail on how these levels were decided and the rest of the variables where one-hot encoded.
 
 
 <div align="center"><img width="494" alt="image" src="https://github.com/Oraculous/fatalshootings/assets/77309239/2f9c2778-5ee2-4aee-ac3c-63bc8aa55619"></div>
-The rest of the variables were one-hot encoded. 
+
 
 
 > [!NOTE]
