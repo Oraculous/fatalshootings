@@ -72,6 +72,7 @@ The main issue that this project will face when cluster analysis is conducted is
 <div align="center"><img width="494" alt="image" src="https://github.com/Oraculous/fatalshootings/assets/77309239/2f9c2778-5ee2-4aee-ac3c-63bc8aa55619"></div>
 The rest of the variables were one-hot encoded. 
 
+
 > [!NOTE]
 > The reason why "0" isn't used as a level when converting the text into numerical is mainly due to how one of the dimensionality reduction technique i.e. Categorical Principal Correspondence Analysis considers "0" values as Null values. 
 
