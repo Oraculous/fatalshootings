@@ -4,9 +4,9 @@
 D. Brian Burghart along with a multi-disciplinary team at the University of Southern California worked on a large-scale project to create an impartial, comprehensive, and searchable national database of people killed during their interactions with the police in the United States of America.
 ## Executive Summary
 
-This repo consists of the data cleaning, analysis and inference of a dataset obtained from Fatal Encounters. It consists of 31,498 deceased individuals due to encounters with the police in the United States of America between 2019-12-31 and 2020-12-31.
+This repository consists of the data cleaning, analysis and inference of a dataset obtained from Fatal Encounters. It consists of 31,498 deceased individuals due to encounters with the police in the United States of America between 2019-12-31 and 2020-12-31.
 
-THe purpose of this analysis is to test different types of dimensionaliy reduction techniques namely,
+The purpose of this analysis is to test different types of dimensionaliy reduction techniques namely,
 1. Principal Component Analysis (PCA)
 2. Mulitple Correspondence Analysis (MCA)
 3. Categorical Principal Component Analysis (CATPCA)
